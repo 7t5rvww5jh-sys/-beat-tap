@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Beat Tap</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #10131a;
+    color: #f5f7fb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding: 16px;
+  }
+  h1 { font-size: 25px; margin: 0 0 14px; }
+  .panel {
+    background: #1b2130;
+    border: 1px solid #343d52;
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  label { display:block; margin: 10px 0 6px; font-weight: 600; }
+  input, button {
+    font: inherit;
+  }
+  input[type=file], input[type=number] {
+    width: 100%;
+    padding: 10px;
+    background: #0e1118;
+    color: white;
+    border: 1px solid #4b5872;
+    border-radius: 10px;
+  }
+  input[type=range] { width: 100%; }
+  button {
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 700;
+    color: white;
+    background: #3978ff;
+    margin: 5px 4px 0 0;
+  }
+  button.secondary { background: #4a5368; }
+  button.danger { background: #c44758; }
+  button:disabled { opacity: .45; }
+  #status { color: #b9c7e8; font-size: 14px; line-height: 1.5; }
+  video {
+    width: 100%;
+    max-height: 300px;
+    background: #000;
+    border-radius: 12px;
+    display: block;
+  }
+  #lane {
+    position: relative;
+    height: 340px;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, transparent 49.5%, #303b52 49.5%, #303b52 50.5%, transparent 50.5%),
+      #0b0e15;
+    border: 1px solid #34405a;
+    border-radius: 14px;
+    margin-top: 12px;
+    touch-action: manipulation;
+  }
+  #hitLine {
+    position: absolute;
+    left: 0; right: 0; bottom: 66px;
+    height: 3px;
+    background: #ffcf58;
+    box-shadow: 0 0 12px #ffcf58;
+  }
+  .note {
+    position: absolute;
+    width: 72px; height: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #4ea1ff;
+    border: 2px solid #d8ecff;
+    box-shadow: 0 0 14px #4ea1ff;
+    cursor: pointer;
+    user-select: none;
+  }
+  .note:active { transform: translateX(-50%) scale(.9); }
+  #tap {
+    width: 100%;
+    font-size: 20px;
+    padding: 18px;
+    background: #e35b77;
+  }
+  .stats { display:flex; justify-content:space-between; gap:10px; font-size:14px; color:#c9d2e7; }
+  .hint { font-size: 13px; color: #aab6ce; line-height:1.5; }
+</style>
+</head>
+<body>
+<h1>🥁 Beat Tap</h1>
+
+<div class="panel">
+  <label for="mediaFile">① 動画・音声ファイル</label>
+  <input id="mediaFile" type="file" accept="video/*,audio/*">
+  <div class="hint">iPhoneの「ファイル」から動画を選択してください。</div>
+  <div style="height:10px"></div>
+  <video id="media" controls playsinline webkit-playsinline preload="metadata"></video>
+  <audio id="audioOnly" controls style="display:none;width:100%;"></audio>
+</div>
+
+<div class="panel">
+  <label for="bpm">② BPM：<span id="bpmText">120</span></label>
+  <input id="bpm" type="range" min="40" max="240" value="120">
+  <label for="density">③ ノーツ密度</label>
+  <input id="density" type="range" min="1" max="4" value="2">
+  <div>
+    <button id="start">ノーツ開始</button>
+    <button id="pause" class="secondary">一時停止</button>
+    <button id="reset" class="danger">リセット</button>
+  </div>
+  <p id="status">ファイルを選択してください。</p>
+</div>
+
+<div class="panel">
+  <div class="stats">
+    <span>表示中：<b id="count">0</b></span>
+    <span>タップ数：<b id="taps">0</b></span>
+  </div>
+  <div id="lane" aria-label="ノーツ表示エリア">
+    <div id="hitLine"></div>
+  </div>
+  <button id="tap">TAP</button>
+  <p class="hint">ノーツを直接タップするか、TAPボタンを押すと近いノーツを消します。判定・スコアはありません。</p>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const fileInput = document.getElementById("mediaFile");
+  const media = document.getElementById("media");
+  const audioOnly = document.getElementById("audioOnly");
+  const bpm = document.getElementById("bpm");
+  const bpmText = document.getElementById("bpmText");
+  const density = document.getElementById("density");
+  const startBtn = document.getElementById("start");
+  const pauseBtn = document.getElementById("pause");
+  const resetBtn = document.getElementById("reset");
+  const tapBtn = document.getElementById("tap");
+  const status = document.getElementById("status");
+  const lane = document.getElementById("lane");
+  const count = document.getElementById("count");
+  const taps = document.getElementById("taps");
+
+  let objectUrl = null;
+  let running = false;
+  let raf = 0;
+  let lastTime = 0;
+  let spawnAccumulator = 0;
+  let tapCount = 0;
+  const notes = new Set();
+
+  function setStatus(message) { status.textContent = message; }
+  function updateStats() {
+    count.textContent = String(notes.size);
+    taps.textContent = String(tapCount);
+  }
+  function clearNotes() {
+    for (const note of notes) note.remove();
+    notes.clear();
+    updateStats();
+  }
+  function currentBpm() { return Number(bpm.value); }
+  function spawnInterval() {
+    return 60000 / currentBpm() / Number(density.value);
+  }
+  function spawnNote() {
+    const note = document.createElement("div");
+    note.className = "note";
+    note.style.left = (25 + Math.random() * 50) + "%";
+    note.style.top = "-34px";
+    note.dataset.y = "-34";
+    note.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      removeNote(note);
+      tapCount++;
+      updateStats();
+    });
+    lane.appendChild(note);
+    notes.add(note);
+    updateStats();
+  }
+  function removeNote(note) {
+    if (!notes.has(note)) return;
+    notes.delete(note);
+    note.remove();
+    updateStats();
+  }
+  function tapNearest() {
+    let selected = null;
+    let bestDistance = Infinity;
+    for (const note of notes) {
+      const y = Number(note.dataset.y);
+      const distance = Math.abs(y - (lane.clientHeight - 90));
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        selected = note;
+      }
+    }
+    if (selected && bestDistance < 115) removeNote(selected);
+    tapCount++;
+    updateStats();
+  }
+  function loop(timestamp) {
+    if (!running) return;
+    if (!lastTime) lastTime = timestamp;
+    const dt = Math.min(50, timestamp - lastTime);
+    lastTime = timestamp;
+    spawnAccumulator += dt;
+
+    while (spawnAccumulator >= spawnInterval()) {
+      spawnAccumulator -= spawnInterval();
+      spawnNote();
+    }
+
+    for (const note of [...notes]) {
+      const y = Number(note.dataset.y) + dt * 0.28;
+      note.dataset.y = String(y);
+      note.style.top = y + "px";
+      if (y > lane.clientHeight + 40) removeNote(note);
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  function startLoop() {
+    if (running) return;
+    running = true;
+    lastTime = 0;
+    setStatus("ノーツを生成中。動画の再生は動画側の再生ボタンで操作できます。");
+    raf = requestAnimationFrame(loop);
+  }
+  function pauseLoop() {
+    running = false;
+    cancelAnimationFrame(raf);
+    lastTime = 0;
+    setStatus("ノーツを一時停止しました。");
+  }
+  function resetAll() {
+    pauseLoop();
+    clearNotes();
+    tapCount = 0;
+    spawnAccumulator = 0;
+    updateStats();
+    setStatus("リセットしました。");
+  }
+
+  bpm.addEventListener("input", () => { bpmText.textContent = bpm.value; });
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = URL.createObjectURL(file);
+    const isAudio = file.type.startsWith("audio/");
+    if (isAudio) {
+      media.style.display = "none";
+      audioOnly.style.display = "block";
+      audioOnly.src = objectUrl;
+      audioOnly.load();
+    } else {
+      audioOnly.style.display = "none";
+      audioOnly.removeAttribute("src");
+      media.style.display = "block";
+      media.src = objectUrl;
+      media.load();
+    }
+    setStatus("読み込み準備完了：" + file.name + "。再生ボタンで動画を確認できます。");
+  });
+  media.addEventListener("loadedmetadata", () => setStatus("動画を読み込みました。再生ボタンで再生できます。"));
+  media.addEventListener("error", () => setStatus("動画を読み込めませんでした。別の動画ファイルで試してください。"));
+  audioOnly.addEventListener("loadedmetadata", () => setStatus("音声を読み込みました。再生ボタンで再生できます。"));
+  audioOnly.addEventListener("error", () => setStatus("音声を読み込めませんでした。別のファイルで試してください。"));
+  startBtn.addEventListener("click", startLoop);
+  pauseBtn.addEventListener("click", pauseLoop);
+  resetBtn.addEventListener("click", resetAll);
+  tapBtn.addEventListener("pointerdown", (event) => { event.preventDefault(); tapNearest(); });
+  updateStats();
+})();
+</script>
+</body>
+</html>
