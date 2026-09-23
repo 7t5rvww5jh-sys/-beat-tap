@@ -4,227 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Beat Tap - Auto Analysis</title>
+<title>Beat Tap - Auto Analysis Plus</title>
 <style>
-:root{color-scheme:dark}
-*{box-sizing:border-box}
-body{margin:0;padding:16px;background:#0d111a;color:#f5f7fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-h1{font-size:24px;margin:0 0 12px}
-.panel{background:#192131;border:1px solid #35445e;border-radius:16px;padding:14px;margin:12px 0}
-label{display:block;font-weight:700;margin:12px 0 6px}
-input,select,button{font:inherit}
-input[type=file],select{width:100%;padding:11px;border:1px solid #53637f;border-radius:10px;background:#0c111b;color:#fff}
-input[type=range]{width:100%}
-button{padding:12px 15px;border:0;border-radius:11px;background:#3d7cff;color:white;font-weight:700;margin:5px 5px 0 0}
-button.secondary{background:#4b5870}
-button.danger{background:#b94156}
-button:disabled{opacity:.45}
-.small{font-size:13px;color:#b7c4dc;line-height:1.5}
-.value{color:#80b5ff}
-#status{font-size:14px;color:#c3d0e9;line-height:1.5}
-video{width:100%;max-height:290px;background:#000;border-radius:12px;display:block}
-#audioOnly{width:100%}
-#lane{position:relative;height:380px;overflow:hidden;background:repeating-linear-gradient(90deg,#0b1019 0,#0b1019 24.5%,#1c2940 25%,#0b1019 25.5%,#0b1019 49.5%,#1c2940 50%,#0b1019 50.5%,#0b1019 74.5%,#1c2940 75%,#0b1019 75.5%);border:1px solid #34435d;border-radius:14px;margin-top:12px}
-#hitLine{position:absolute;left:0;right:0;bottom:70px;height:3px;background:#ffcf59;box-shadow:0 0 12px #ffcf59}
-.note{position:absolute;width:54px;height:28px;border-radius:999px;background:#4da2ff;border:2px solid #e2f2ff;box-shadow:0 0 13px #4da2ff;transform:translateX(-50%);pointer-events:none}
-.stats{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c6d3e9;flex-wrap:wrap}
-hr{border:0;border-top:1px solid #35445e;margin:12px 0}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:16px;background:#0d111a;color:#f5f7fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}h1{font-size:24px;margin:0 0 12px}.panel{background:#192131;border:1px solid #35445e;border-radius:16px;padding:14px;margin:12px 0}label{display:block;font-weight:700;margin:12px 0 6px}input,select,button{font:inherit}input[type=file],select{width:100%;padding:11px;border:1px solid #53637f;border-radius:10px;background:#0c111b;color:#fff}input[type=range]{width:100%}button{padding:12px 15px;border:0;border-radius:11px;background:#3d7cff;color:white;font-weight:700;margin:5px 5px 0 0}button.secondary{background:#4b5870}button.danger{background:#b94156}button:disabled{opacity:.45}.small{font-size:13px;color:#b7c4dc;line-height:1.5}.value{color:#80b5ff}#status{font-size:14px;color:#c3d0e9;line-height:1.5}video{width:100%;max-height:290px;background:#000;border-radius:12px;display:block}#audioOnly{width:100%}#lane{position:relative;height:390px;overflow:hidden;background:repeating-linear-gradient(90deg,#0b1019 0,#0b1019 24.5%,#1c2940 25%,#0b1019 25.5%,#0b1019 49.5%,#1c2940 50%,#0b1019 50.5%,#0b1019 74.5%,#1c2940 75%,#0b1019 75.5%);border:1px solid #34435d;border-radius:14px;margin-top:12px}#hitLine{position:absolute;left:0;right:0;bottom:70px;height:3px;background:#ffcf59;box-shadow:0 0 12px #ffcf59}.note{position:absolute;width:52px;height:26px;border-radius:999px;background:#4da2ff;border:2px solid #e2f2ff;box-shadow:0 0 13px #4da2ff;transform:translateX(-50%);pointer-events:none}.note.alt{background:#b36bff;box-shadow:0 0 13px #b36bff}.note.gold{background:#ffb84d;box-shadow:0 0 13px #ffb84d}.note.small{width:38px;height:21px}.note.big{width:68px;height:30px}.stats{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c6d3e9;flex-wrap:wrap}hr{border:0;border-top:1px solid #35445e;margin:12px 0}
 </style>
 </head>
 <body>
-<h1>🥁 Beat Tap - 自動分析版</h1>
-
+<h1>🥁 Beat Tap - 自動分析＋変化パターン版</h1>
 <div class="panel">
-  <label for="mediaFile">① 動画・音声ファイル</label>
-  <input id="mediaFile" type="file" accept="video/*,audio/*">
-  <p class="small">iPhoneの「ファイル」から動画または音声を選択してください。</p>
-  <video id="media" controls playsinline webkit-playsinline preload="metadata"></video>
-  <audio id="audioOnly" controls style="display:none"></audio>
+<label for="mediaFile">① 動画・音声ファイル</label>
+<input id="mediaFile" type="file" accept="video/*,audio/*">
+<p class="small">iPhoneの「ファイル」から動画または音声を選択してください。</p>
+<video id="media" controls playsinline webkit-playsinline preload="metadata"></video>
+<audio id="audioOnly" controls style="display:none"></audio>
 </div>
-
 <div class="panel">
-  <label for="mode">② ノーツ生成モード</label>
-  <select id="mode">
-    <option value="analysis">自動分析：音量変化からノーツ生成</option>
-    <option value="grid">BPMグリッド：一定間隔でノーツ生成</option>
-  </select>
-
-  <label for="density">③ ノーツ個数・密度：<span id="densityText" class="value">2</span></label>
-  <input id="density" type="range" min="1" max="8" step="1" value="2">
-  <p class="small">1＝少なめ / 8＝多め。自動分析では音のピークごとに同時生成する個数に反映。</p>
-
-  <label for="speed">④ ノーツ速度：<span id="speedText" class="value">1.0x</span></label>
-  <input id="speed" type="range" min="0.4" max="3" step="0.1" value="1">
-  <p class="small">速度を上げるほどノーツが速く落下します。</p>
-
-  <div id="gridOptions">
-    <label for="bpm">BPM：<span id="bpmText" class="value">120</span></label>
-    <input id="bpm" type="range" min="40" max="240" step="1" value="120">
-    <label for="subdivision">分割：<span id="subdivisionText" class="value">1/4</span></label>
-    <select id="subdivision">
-      <option value="1">1拍ごと</option>
-      <option value="2">2分割（8分音符）</option>
-      <option value="4" selected>4分割（16分音符）</option>
-      <option value="8">8分割（細かい）</option>
-    </select>
-  </div>
-
-  <label style="display:flex;align-items:center;gap:8px">
-    <input id="soundEnabled" type="checkbox" checked style="width:auto">
-    ノーツ生成音を鳴らす
-  </label>
-
-  <button id="start">開始・動画再生</button>
-  <button id="pause" class="secondary">一時停止</button>
-  <button id="reset" class="danger">リセット</button>
-  <p id="status">ファイルを選択してください。</p>
+<label for="mode">② ノーツ生成モード</label>
+<select id="mode"><option value="analysis">自動分析：音量ピーク＋リズム変化</option><option value="grid">BPMグリッド：変化パターン付き</option></select>
+<label for="density">③ ノーツ密度：<span id="densityText" class="value">3</span></label>
+<input id="density" type="range" min="1" max="8" step="1" value="3">
+<p class="small">密度を上げると、同時押し・連打・細かい合間のノーツが増えます。</p>
+<label for="speed">④ ノーツ速度：<span id="speedText" class="value">1.0x</span></label>
+<input id="speed" type="range" min="0.4" max="3" step="0.1" value="1">
+<div id="gridOptions">
+<label for="bpm">BPM：<span id="bpmText" class="value">120</span></label>
+<input id="bpm" type="range" min="40" max="240" step="1" value="120">
+<label for="subdivision">分割</label>
+<select id="subdivision"><option value="1">1拍ごと</option><option value="2">8分音符</option><option value="4" selected>16分音符</option><option value="8">細かい</option></select>
 </div>
-
-<div class="panel">
-  <div class="stats">
-    <span>表示中：<b id="count">0</b></span>
-    <span>生成数：<b id="spawned">0</b></span>
-    <span>分析ピーク：<b id="peaks">0</b></span>
-  </div>
-  <div id="lane"><div id="hitLine"></div></div>
-  <p class="small">画面上でのタップ操作はありません。ノーツは自動で流れます。</p>
+<label style="display:flex;align-items:center;gap:8px"><input id="soundEnabled" type="checkbox" checked style="width:auto">ノーツ生成音を鳴らす</label>
+<button id="soundTest" class="secondary">🔊 音を確認</button>
+<button id="start">開始・動画再生</button><button id="pause" class="secondary">一時停止</button><button id="reset" class="danger">リセット</button>
+<p id="status">ファイルを選択してください。</p>
 </div>
-
+<div class="panel"><div class="stats"><span>表示中：<b id="count">0</b></span><span>生成数：<b id="spawned">0</b></span><span>分析ピーク：<b id="peaks">0</b></span></div><div id="lane"><div id="hitLine"></div></div><p class="small">タップ操作は不要です。ノーツは自動で流れ、パターン・位置・大きさ・音色が変化します。</p></div>
 <script>
-(() => {
-"use strict";
-const $ = id => document.getElementById(id);
-const fileInput=$("mediaFile"), media=$("media"), audioOnly=$("audioOnly");
-const mode=$("mode"), density=$("density"), speed=$("speed"), bpm=$("bpm"), subdivision=$("subdivision");
-const densityText=$("densityText"), speedText=$("speedText"), bpmText=$("bpmText"), subdivisionText=$("subdivisionText");
-const startBtn=$("start"), pauseBtn=$("pause"), resetBtn=$("reset"), soundEnabled=$("soundEnabled");
-const status=$("status"), lane=$("lane"), count=$("count"), spawned=$("spawned"), peaks=$("peaks"), gridOptions=$("gridOptions");
-
-let objectUrl=null, activeMedia=null, audioContext=null, analyser=null, sourceNode=null;
-let running=false, raf=0, lastTime=0, spawnAccumulator=0, gridAccumulator=0;
-let notes=new Set(), totalSpawned=0, peakCount=0, lastPeakTime=-Infinity, baseline=0.03, smoothed=0.03;
-
-function setStatus(s){status.textContent=s}
-function updateStats(){count.textContent=notes.size;spawned.textContent=totalSpawned;peaks.textContent=peakCount}
-function clearNotes(){for(const n of notes)n.remove();notes.clear();updateStats()}
-function ensureAudio(){
-  if(!activeMedia)return false;
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC)return false;
-  if(!audioContext){
-    audioContext=new AC();
-    analyser=audioContext.createAnalyser();
-    analyser.fftSize=1024;
-    analyser.smoothingTimeConstant=0.55;
-    sourceNode=audioContext.createMediaElementSource(activeMedia);
-    sourceNode.connect(analyser);
-    analyser.connect(audioContext.destination);
-  }
-  if(audioContext.state==="suspended")audioContext.resume();
-  return true;
-}
-function beep(freq=660,duration=.045,volume=.035){
-  if(!soundEnabled.checked||!audioContext)return;
-  const now=audioContext.currentTime, osc=audioContext.createOscillator(), gain=audioContext.createGain();
-  osc.type="sine";osc.frequency.setValueAtTime(freq,now);
-  gain.gain.setValueAtTime(volume,now);
-  gain.gain.exponentialRampToValueAtTime(.001,now+duration);
-  osc.connect(gain);gain.connect(audioContext.destination);
-  osc.start(now);osc.stop(now+duration);
-}
-function spawnOne(x){
-  const note=document.createElement("div");
-  note.className="note";
-  note.style.left=x+"%";
-  note.dataset.y="-34";
-  lane.appendChild(note);notes.add(note);totalSpawned++;
-}
-function spawnGroup(){
-  const amount=Number(density.value);
-  const positions=[];
-  for(let i=0;i<amount;i++){
-    let x=12+Math.random()*76;
-    if(amount>1)x=Math.max(8,Math.min(92,12+(i+Math.random())*(76/amount)));
-    positions.push(x);
-  }
-  positions.forEach(spawnOne);
-  beep(620+Math.min(amount,6)*35,.05,.035);
-  updateStats();
-}
-function removeNote(n){if(notes.has(n)){notes.delete(n);n.remove()}}
-function interval(){return 60000/Number(bpm.value)/Number(subdivision.value)}
-function detectPeak(now){
-  if(!analyser)return false;
-  const data=new Uint8Array(analyser.fftSize);
-  analyser.getByteTimeDomainData(data);
-  let sum=0;
-  for(let i=0;i<data.length;i++){const v=(data[i]-128)/128;sum+=v*v}
-  const rms=Math.sqrt(sum/data.length);
-  smoothed=smoothed*.88+rms*.12;
-  baseline=baseline*.985+rms*.015;
-  const threshold=Math.max(.045,baseline*1.55,smoothed*1.18);
-  const peak=rms>threshold && rms>0.055 && now-lastPeakTime>150;
-  if(peak){lastPeakTime=now;peakCount++;updateStats()}
-  return peak;
-}
-function loop(t){
-  if(!running)return;
-  if(!lastTime)lastTime=t;
-  const dt=Math.min(60,t-lastTime);lastTime=t;
-  const now=activeMedia?activeMedia.currentTime*1000:t;
-  let trigger=false;
-  if(mode.value==="analysis"){
-    trigger=detectPeak(now);
-    if(trigger)spawnGroup();
-  }else{
-    gridAccumulator+=dt;
-    while(gridAccumulator>=interval()){
-      gridAccumulator-=interval();spawnGroup();
-    }
-  }
-  const fall=0.22*Number(speed.value);
-  for(const n of [...notes]){
-    const y=Number(n.dataset.y)+dt*fall;
-    n.dataset.y=y;n.style.top=y+"px";
-    if(y>lane.clientHeight+45)removeNote(n);
-  }
-  updateStats();
-  raf=requestAnimationFrame(loop);
-}
-async function start(){
-  if(!activeMedia){setStatus("先に動画または音声ファイルを選択してください。");return}
-  ensureAudio();
-  try{await activeMedia.play()}catch(e){setStatus("再生できない場合は、動画側の再生ボタンを一度押してください。")}
-  if(running)return;
-  running=true;lastTime=0;gridAccumulator=0;
-  setStatus(mode.value==="analysis"?"音量変化を分析してノーツを生成中。":"BPMグリッドでノーツを生成中。");
-  raf=requestAnimationFrame(loop);
-}
-function pause(){running=false;cancelAnimationFrame(raf);lastTime=0;if(activeMedia)activeMedia.pause();setStatus("一時停止しました。")}
-function reset(){pause();clearNotes();totalSpawned=0;peakCount=0;lastPeakTime=-Infinity;baseline=.03;smoothed=.03;updateStats();setStatus("リセットしました。")}
-fileInput.addEventListener("change",()=>{
-  const file=fileInput.files&&fileInput.files[0];if(!file)return;
-  pause();clearNotes();
-  if(objectUrl)URL.revokeObjectURL(objectUrl);
-  objectUrl=URL.createObjectURL(file);
-  activeMedia=file.type.startsWith("audio/")?audioOnly:media;
-  media.style.display=activeMedia===media?"block":"none";
-  audioOnly.style.display=activeMedia===audioOnly?"block":"none";
-  activeMedia.src=objectUrl;activeMedia.load();
-  audioContext=null;analyser=null;sourceNode=null;
-  setStatus("読み込み完了："+file.name+"。開始・動画再生を押してください。");
-});
-mode.addEventListener("change",()=>{gridOptions.style.display=mode.value==="grid"?"block":"none"});
-density.addEventListener("input",()=>densityText.textContent=density.value);
-speed.addEventListener("input",()=>speedText.textContent=Number(speed.value).toFixed(1)+"x");
-bpm.addEventListener("input",()=>bpmText.textContent=bpm.value);
-subdivision.addEventListener("change",()=>subdivisionText.textContent="1/"+(Number(subdivision.value)*4));
-startBtn.addEventListener("click",start);
-pauseBtn.addEventListener("click",pause);
-resetBtn.addEventListener("click",reset);
-gridOptions.style.display="none";
-updateStats();
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);const fileInput=$('mediaFile'),media=$('media'),audioOnly=$('audioOnly');const mode=$('mode'),density=$('density'),speed=$('speed'),bpm=$('bpm'),subdivision=$('subdivision');const densityText=$('densityText'),speedText=$('speedText'),bpmText=$('bpmText');const startBtn=$('start'),pauseBtn=$('pause'),resetBtn=$('reset'),soundTest=$('soundTest'),soundEnabled=$('soundEnabled');const status=$('status'),lane=$('lane'),count=$('count'),spawned=$('spawned'),peaks=$('peaks'),gridOptions=$('gridOptions');
+let objectUrl=null,activeMedia=null,audioContext=null,analyser=null,sourceNode=null;let running=false,raf=0,lastTime=0,gridAccumulator=0,patternIndex=0;let notes=new Set(),totalSpawned=0,peakCount=0,lastPeakTime=-Infinity,baseline=.03,smoothed=.03,lastTrigger=-Infinity;
+function setStatus(s){status.textContent=s}function updateStats(){count.textContent=notes.size;spawned.textContent=totalSpawned;peaks.textContent=peakCount}function clearNotes(){for(const n of notes)n.remove();notes.clear();updateStats()}
+function ensureAudio(){if(!activeMedia)return false;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;if(!audioContext){audioContext=new AC();analyser=audioContext.createAnalyser();analyser.fftSize=2048;analyser.smoothingTimeConstant=.35;sourceNode=audioContext.createMediaElementSource(activeMedia);sourceNode.connect(analyser);analyser.connect(audioContext.destination)}if(audioContext.state==='suspended')audioContext.resume();return true}
+function tone(freq=660,duration=.07,volume=.06,type='sine'){if(!soundEnabled.checked||!audioContext)return;const now=audioContext.currentTime;const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,now);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(volume,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now);osc.stop(now+duration+.02)}
+function playPatternSound(kind){if(kind===0){tone(220,.10,.075,'triangle');tone(440,.055,.035,'sine')}else if(kind===1){tone(520,.055,.055,'square')}else if(kind===2){tone(330,.08,.06,'sawtooth');tone(660,.045,.035,'sine')}else{tone(760,.04,.05,'square');setTimeout(()=>tone(980,.035,.035,'square'),35)}}
+function spawnOne(x,kind=0,size='normal'){const note=document.createElement('div');note.className='note '+(kind===1?'alt':kind===2?'gold':'')+(size==='small'?' small':size==='big'?' big':'');note.style.left=Math.max(5,Math.min(95,x))+'%';note.dataset.y='-35';lane.appendChild(note);notes.add(note);totalSpawned++}
+function makePattern(){const d=Number(density.value),p=patternIndex++%8;let xs=[];if(p===0){xs=[50]}else if(p===1){xs=[22,78]}else if(p===2){xs=[18,50,82]}else if(p===3){xs=[30,48,66]}else if(p===4){xs=[14,38,62,86]}else if(p===5){xs=[25,25,72,72]}else if(p===6){xs=[18,42,58,82,50]}else{xs=[12,34,50,66,88,50]};let take=Math.min(xs.length,Math.max(1,Math.round(d/1.4)+1));if(d>=6&&p%2===1)take=Math.min(xs.length,6);return xs.slice(0,take).map((x,i)=>({x:x+(Math.random()*8-4),kind:(p+i)%3,size:d>=7&&i===0?'big':d<=2?'small':'normal'}))}
+function spawnPattern(){const items=makePattern();items.forEach((it,i)=>spawnOne(it.x,it.kind,it.size));playPatternSound(patternIndex%4);updateStats()}
+function removeNote(n){if(notes.has(n)){notes.delete(n);n.remove()}}function interval(){return 60000/Number(bpm.value)/Number(subdivision.value)}
+function detectPeak(now){if(!analyser)return false;const data=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(data);let sum=0;for(let i=0;i<data.length;i++){const v=(data[i]-128)/128;sum+=v*v}const rms=Math.sqrt(sum/data.length);smoothed=smoothed*.82+rms*.18;baseline=baseline*.992+rms*.008;const threshold=Math.max(.035,baseline*1.30,smoothed*1.08);const peak=rms>threshold&&rms>.045&&now-lastPeakTime>105;if(peak){lastPeakTime=now;peakCount++;updateStats()}return peak}
+function loop(t){if(!running)return;if(!lastTime)lastTime=t;const dt=Math.min(60,t-lastTime);lastTime=t;const now=activeMedia?activeMedia.currentTime*1000:t;let trigger=false;if(mode.value==='analysis'){trigger=detectPeak(now);if(trigger&&now-lastTrigger>90){lastTrigger=now;spawnPattern()}}else{gridAccumulator+=dt;while(gridAccumulator>=interval()){gridAccumulator-=interval();spawnPattern()}}const fall=.22*Number(speed.value);for(const n of [...notes]){const y=Number(n.dataset.y)+dt*fall;n.dataset.y=y;n.style.top=y+'px';if(y>lane.clientHeight+45)removeNote(n)}updateStats();raf=requestAnimationFrame(loop)}
+async function start(){if(!activeMedia){setStatus('先に動画または音声ファイルを選択してください。');return}try{ensureAudio();if(audioContext&&audioContext.state==='suspended')await audioContext.resume();await activeMedia.play();tone(880,.08,.045,'sine')}catch(e){setStatus('音声の開始がブロックされました。先に「🔊 音を確認」を押してから開始してください。');return}if(running)return;running=true;lastTime=0;gridAccumulator=0;setStatus(mode.value==='analysis'?'音量ピークを分析中。変化パターンで生成しています。':'BPMグリッドで変化パターンを生成中。');raf=requestAnimationFrame(loop)}
+function pause(){running=false;cancelAnimationFrame(raf);lastTime=0;if(activeMedia)activeMedia.pause();setStatus('一時停止しました。')}function reset(){pause();clearNotes();totalSpawned=0;peakCount=0;patternIndex=0;lastPeakTime=-Infinity;lastTrigger=-Infinity;baseline=.03;smoothed=.03;updateStats();setStatus('リセットしました。')}
+fileInput.addEventListener('change',()=>{const file=fileInput.files&&fileInput.files[0];if(!file)return;pause();clearNotes();if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);activeMedia=file.type.startsWith('audio/')?audioOnly:media;media.style.display=activeMedia===media?'block':'none';audioOnly.style.display=activeMedia===audioOnly?'block':'none';activeMedia.src=objectUrl;activeMedia.load();audioContext=null;analyser=null;sourceNode=null;setStatus('読み込み完了：'+file.name+'。🔊 音を確認 → 開始の順で押してください。')});
+mode.addEventListener('change',()=>gridOptions.style.display=mode.value==='grid'?'block':'none');density.addEventListener('input',()=>densityText.textContent=density.value);speed.addEventListener('input',()=>speedText.textContent=Number(speed.value).toFixed(1)+'x');bpm.addEventListener('input',()=>bpmText.textContent=bpm.value);startBtn.addEventListener('click',start);pauseBtn.addEventListener('click',pause);resetBtn.addEventListener('click',reset);soundTest.addEventListener('click',()=>{if(!activeMedia){setStatus('先にファイルを選択してください。');return}ensureAudio();if(audioContext&&audioContext.state==='suspended')audioContext.resume();tone(660,.12,.08,'triangle');tone(990,.08,.045,'sine');setStatus('音の確認音を鳴らしました。聞こえたら「開始・動画再生」を押してください。')});gridOptions.style.display='none';updateStats();
 })();
 </script>
-</body>
-</html>
+</body></html>
